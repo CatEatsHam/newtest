@@ -42,6 +42,8 @@ void tfTreeClass::WorldToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
     transformStamped.transform.rotation.w = msg->pose.pose.orientation.w;
     WorldToIns.sendTransform(transformStamped);
 
+    InsToLidarTransform();
+
     // tf2::Quaternion quat;
     // quat.setRPY(map_roll, map_pitch, map_yaw);
     // double roll, pitch, yaw;
@@ -75,6 +77,5 @@ void tfTreeClass::InsToLidarTransform()
 void tfTreeClass::Initialize(int argc, char **argv)
 {
     WorldToMapTransform();
-    InsToLidarTransform();
     sub_ins = tf_node.subscribe("odometry_data", 10, &tfTreeClass::WorldToInsTransform, this);
 }
