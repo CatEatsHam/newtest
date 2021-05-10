@@ -20,12 +20,15 @@ void tfTreeClass::WorldToMapTransform()
     static_transformStamped.transform.rotation.z = map_quat.z();
     static_transformStamped.transform.rotation.w = map_quat.w();
 
+    cout << map_roll << "\t" << map_pitch << "\t" << map_yaw << endl;
+    cout << map_quat.x() << "\t" << map_quat.y() << "\t" << map_quat.z() << "\t" << map_quat.w() << endl;
+
     static_WorldToMap.sendTransform(static_transformStamped);
 }
 
 void tfTreeClass::WorldToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
 {
-    static tf2_ros::StaticTransformBroadcaster WorldToIns;
+    static tf2_ros::TransformBroadcaster WorldToIns; 
     geometry_msgs::TransformStamped transformStamped;
 
     transformStamped.header.stamp = ros::Time::now();

@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     node.getParam("lidar_translation_z", tf_tree->lidar_z);
     node.getParam("lidar_rotation_roll", tf_tree->lidar_roll);
     node.getParam("lidar_rotation_pitch", tf_tree->lidar_pitch);
-    node.getParam("lidar_rotation_yaw", tf_tree->map_yaw);
+    node.getParam("lidar_rotation_yaw", tf_tree->lidar_yaw);
 
     tf_tree->Initialize(argc, argv);
     ros::spin();

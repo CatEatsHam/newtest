@@ -14,8 +14,8 @@
         <param name="camera_frame"          type="str"      value="camera" />
         <param name="radar_frame"           type="str"      value="radar" />
 
-        <param name="map_translation_x"     type="double"   value="741971.804017" />
-        <param name="map_translation_y"     type="double"   value="3391544.58541" />
+        <param name="map_translation_x"     type="double"   value="741331.804017" />
+        <param name="map_translation_y"     type="double"   value="3391511.58541" />
         <param name="map_translation_z"     type="double"   value="49.0" />
         <param name="map_rotation_roll"     type="double"   value="0.0" />
         <param name="map_rotation_pitch"    type="double"   value="0.0" />
