@@ -43,6 +43,8 @@ void tfTreeClass::WorldToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
     WorldToIns.sendTransform(transformStamped);
 
     InsToLidarTransform();
+    WorldToMapTransform();
+
 
     // tf2::Quaternion quat;
     // quat.setRPY(map_roll, map_pitch, map_yaw);
