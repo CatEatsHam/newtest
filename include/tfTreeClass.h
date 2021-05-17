@@ -48,6 +48,7 @@ public:
 
     // Methods to perform the transforms
     void WorldToMapTransform();
+    void MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg);
     void WorldToInsTransform(const nav_msgs::Odometry::ConstPtr& msg);
     void InsToLidarTransform();
     void InsToCameraTransform();
