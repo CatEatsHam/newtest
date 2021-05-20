@@ -33,23 +33,32 @@ public:
     string world_frame = "world";
     string map_frame = "map";
     string ins_frame = "vectornav";
+    string base_link_frame = "base_link";
     string lidar_frame = "os1_sensor";
     string camera_frame = "camera";
     string radar_frame = "radar";
 
-    // Map translation and rotation
+    // Map translation and rotation from world to ins
     float map_x = 0.0f, map_y = 0.0f, map_z = 0.0f, map_roll = 0.0f, map_pitch = 0.0f, map_yaw = 0.0f;
 
-    // Ins translation and rotation
+    // Ins translation and rotation from map to ins
     float ins_x = 0.0f, ins_y = 0.0f, ins_z = 0.0f, ins_roll = 0.0f, ins_pitch = 0.0f, ins_yaw = 0.0f;
 
-    // LiDAR translation and rotation
+    // base_link translation and rotation from ins to base_link
+    float base_link_x = 0.0f, base_link_y = 0.0f, base_link_z = 0.0f, base_link_roll = 0.0f, base_link_pitch = 0.0f, base_link_yaw = 0.0f;
+
+    // LiDAR translation and rotation from base_link to lidar
     float lidar_x = 0.0f, lidar_y = 0.0f, lidar_z = 0.0f, lidar_roll = 0.0f, lidar_pitch = 0.0f, lidar_yaw = 0.0f;
 
     // Methods to perform the transforms
     void WorldToMapTransform();
     void MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg);
     void WorldToInsTransform(const nav_msgs::Odometry::ConstPtr& msg);
+    void InsToBaseLinkTransform();
+    void BaseLinkToLidarTransform();
+    void BaseLinkToCameraTransform();
+    void BaseLinkToRadarTransform();
+
     void InsToLidarTransform();
     void InsToCameraTransform();
     void InsToRadarTransform();

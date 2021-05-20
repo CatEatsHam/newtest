@@ -3,7 +3,7 @@
     <node pkg="tf_tree_publisher" type="tf_tree_publisher_node" name="tf_tree_publisher"  output="screen" >
         
         <param name="num_of_ins"            	type="int"  	value="1" />
-        <param name="num_of_lidar"          	type="int"      value="1" />
+        <param name="num_of_lidar"          	type="int"      value="2" />
         <param name="num_of_camera"         	type="int"      value="1" />
         <param name="num_of_radar"          	type="int"      value="0" />
 
