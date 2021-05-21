@@ -37,6 +37,7 @@ public:
     string lidar_frame = "os1_sensor";
     string camera_frame = "camera";
     string radar_frame = "radar";
+    string friction_frame = "friction_image";
 
     // Map translation and rotation from world to ins
     float map_x = 0.0f, map_y = 0.0f, map_z = 0.0f, map_roll = 0.0f, map_pitch = 0.0f, map_yaw = 0.0f;
@@ -50,6 +51,12 @@ public:
     // LiDAR translation and rotation from base_link to lidar
     float lidar_x = 0.0f, lidar_y = 0.0f, lidar_z = 0.0f, lidar_roll = 0.0f, lidar_pitch = 0.0f, lidar_yaw = 0.0f;
 
+    // Camera translation and rotation from base_link to camera
+    float camera_x = 0.0f, camera_y = 0.0f, camera_z = 0.0f, camera_roll = 0.0f, camera_pitch = 0.0f, camera_yaw = 0.0f;
+
+    // friction translation and rotation from camera to friction image
+    float friction_x = 0.0f, friction_y = 0.0f, friction_z = 0.0f, friction_roll = 0.0f, friction_pitch = 0.0f, friction_yaw = 0.0f;
+
     // Methods to perform the transforms
     void WorldToMapTransform();
     void MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg);
@@ -58,6 +65,7 @@ public:
     void BaseLinkToLidarTransform();
     void BaseLinkToCameraTransform();
     void BaseLinkToRadarTransform();
+    void CameraToFrictionImageTransform();
 
     void InsToLidarTransform();
     void InsToCameraTransform();

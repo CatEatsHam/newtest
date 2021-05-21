@@ -18,6 +18,7 @@ int main(int argc, char **argv)
     node.getParam("lidar_frame", tf_tree->lidar_frame);
     node.getParam("camera_frame", tf_tree->camera_frame);
     node.getParam("radar_frame", tf_tree->radar_frame);
+    node.getParam("friction_frame", tf_tree->friction_frame);
 
     node.getParam("map_translation_x", tf_tree->map_x);
     node.getParam("map_translation_y", tf_tree->map_y);
@@ -39,6 +40,20 @@ int main(int argc, char **argv)
     node.getParam("lidar_rotation_roll", tf_tree->lidar_roll);
     node.getParam("lidar_rotation_pitch", tf_tree->lidar_pitch);
     node.getParam("lidar_rotation_yaw", tf_tree->lidar_yaw);
+
+    node.getParam("camera_translation_x", tf_tree->camera_x);
+    node.getParam("camera_translation_y", tf_tree->camera_y);
+    node.getParam("camera_translation_z", tf_tree->camera_z);
+    node.getParam("camera_rotation_roll", tf_tree->camera_roll);
+    node.getParam("camera_rotation_pitch", tf_tree->camera_pitch);
+    node.getParam("camera_rotation_yaw", tf_tree->camera_yaw);
+
+    node.getParam("friction_translation_x", tf_tree->friction_x);
+    node.getParam("friction_translation_y", tf_tree->friction_y);
+    node.getParam("friction_translation_z", tf_tree->friction_z);
+    node.getParam("friction_rotation_roll", tf_tree->friction_roll);
+    node.getParam("friction_rotation_pitch", tf_tree->friction_pitch);
+    node.getParam("friction_rotation_yaw", tf_tree->friction_yaw);
 
     tf_tree->Initialize(argc, argv);
     ros::spin();

@@ -14,6 +14,7 @@
         <param name="lidar_frame"           	type="str"      value="os_sensor" />
         <param name="camera_frame"          	type="str"      value="camera" />
         <param name="radar_frame"           	type="str"      value="radar" />
+        <param name="friction_frame"           	type="str"      value="friction_image" />
 
         <param name="map_translation_x"     	type="double"   value="741331.804017" />
         <param name="map_translation_y"     	type="double"   value="3391511.58541" />
@@ -22,21 +23,35 @@
         <param name="map_rotation_pitch"    	type="double"   value="0.0" />
         <param name="map_rotation_yaw"      	type="double"   value="0.0" />
 
-        <param name="base_link_translation_x"	type="double"   value="0.0" />
+        <param name="base_link_translation_x"	type="double"   value="-0.4699" />
         <param name="base_link_translation_y"	type="double"   value="0.0" />
         <param name="base_link_translation_z" 	type="double"   value="0.0" />
         <param name="base_link_rotation_roll" 	type="double"   value="0.0" />
         <param name="base_link_rotation_pitch"	type="double"   value="0.0" />
         <param name="base_link_rotation_yaw"    type="double"   value="0.0" />
 
-        <param name="lidar_translation_x"     	type="double"   value="1.4986" />
-        <param name="lidar_translation_y"     	type="double"   value="0.0" />
-        <param name="lidar_translation_z"     	type="double"   value="0.0269875" />
+        <param name="lidar_translation_x"     	type="double"   value="3.0226" />
+        <param name="lidar_translation_y"     	type="double"   value="0.3556" />
+        <param name="lidar_translation_z"     	type="double"   value="-0.3556" />
         <param name="lidar_rotation_roll"     	type="double"   value="0.0" />
         <param name="lidar_rotation_pitch"    	type="double"   value="0.0" />
-        <param name="lidar_rotation_yaw"      	type="double"   value="1.57075" />
+        <param name="lidar_rotation_yaw"      	type="double"   value="0.0" />
+
+        <param name="camera_translation_x"     	type="double"   value="0.8001" />
+        <param name="camera_translation_y"     	type="double"   value="0.0" />
+        <param name="camera_translation_z"     	type="double"   value="0.9017" />
+        <param name="camera_rotation_roll"     	type="double"   value="0.0" />
+        <param name="camera_rotation_pitch"    	type="double"   value="0.0" />
+        <param name="camera_rotation_yaw"      	type="double"   value="0.0" />
+
+        <param name="friction_translation_x"     	type="double"   value="5.79543333164" />
+        <param name="friction_translation_y"     	type="double"   value="0.0" />
+        <param name="friction_translation_z"     	type="double"   value="0.0" />
+        <param name="friction_rotation_roll"     	type="double"   value="0.0" />
+        <param name="friction_rotation_pitch"    	type="double"   value="0.0" />
+        <param name="friction_rotation_yaw"      	type="double"   value="0.0" />
         
-        <remap from="/odometry_data" to="/rtk/ins/odom" />
+        <remap from="/odometry_data" to="/ins/pose" />
 
     </node>
 

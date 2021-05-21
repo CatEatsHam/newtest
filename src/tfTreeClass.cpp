@@ -32,7 +32,7 @@ void tfTreeClass::MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
     geometry_msgs::TransformStamped transformStamped;
 
     transformStamped.header.stamp = ros::Time::now();
-    transformStamped.header.frame_id = world_frame;
+    transformStamped.header.frame_id = map_frame;
     transformStamped.child_frame_id = ins_frame;
 
     transformStamped.transform.translation.x = msg->pose.pose.position.x - map_x;
@@ -41,15 +41,19 @@ void tfTreeClass::MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
 
     tf2::Quaternion map_quat;
     map_quat.setRPY(map_roll, map_pitch, map_yaw);
-    transformStamped.transform.rotation.x = msg->pose.pose.orientation.x - map_quat.x();
-    transformStamped.transform.rotation.y = msg->pose.pose.orientation.y - map_quat.y();
-    transformStamped.transform.rotation.z = msg->pose.pose.orientation.z - map_quat.z();
-    transformStamped.transform.rotation.w = msg->pose.pose.orientation.w - map_quat.w();
+    //map_quat.inverse();
+    //transformStamped.transform.rotation = msg->pose.pose.orientation * map_quat;
+    transformStamped.transform.rotation.x = msg->pose.pose.orientation.x;// * map_quat.x();
+    transformStamped.transform.rotation.y = msg->pose.pose.orientation.y;// * map_quat.y();
+    transformStamped.transform.rotation.z = msg->pose.pose.orientation.z;// * map_quat.z();
+    transformStamped.transform.rotation.w = msg->pose.pose.orientation.w;// * map_quat.w();
 
     WorldToMapTransform();
     MapToIns.sendTransform(transformStamped);
     InsToBaseLinkTransform();
     BaseLinkToLidarTransform();
+    BaseLinkToCameraTransform();
+    CameraToFrictionImageTransform();
 }
 
 void tfTreeClass::InsToBaseLinkTransform()
@@ -96,6 +100,52 @@ void tfTreeClass::BaseLinkToLidarTransform()
     static_transformStamped.transform.rotation.w = lidar_quat.w();
 
     static_BaseLinkToLidar.sendTransform(static_transformStamped);
+}
+
+void tfTreeClass::BaseLinkToCameraTransform()
+{
+    static tf2_ros::StaticTransformBroadcaster static_BaseLinkToCamera;
+    geometry_msgs::TransformStamped static_transformStamped;
+
+    static_transformStamped.header.stamp = ros::Time::now();
+    static_transformStamped.header.frame_id = base_link_frame;
+    static_transformStamped.child_frame_id = camera_frame;
+
+    static_transformStamped.transform.translation.x = camera_x;
+    static_transformStamped.transform.translation.y = camera_y;
+    static_transformStamped.transform.translation.z = camera_z;
+
+    tf2::Quaternion camera_quat;
+    camera_quat.setRPY(camera_roll, camera_pitch, camera_yaw);
+    static_transformStamped.transform.rotation.x = camera_quat.x();
+    static_transformStamped.transform.rotation.y = camera_quat.y();
+    static_transformStamped.transform.rotation.z = camera_quat.z();
+    static_transformStamped.transform.rotation.w = camera_quat.w();
+
+    static_BaseLinkToCamera.sendTransform(static_transformStamped);
+}
+
+void tfTreeClass::CameraToFrictionImageTransform()
+{
+    static tf2_ros::StaticTransformBroadcaster static_CameraToFrictionImage;
+    geometry_msgs::TransformStamped static_transformStamped;
+
+    static_transformStamped.header.stamp = ros::Time::now();
+    static_transformStamped.header.frame_id = camera_frame;
+    static_transformStamped.child_frame_id = friction_frame;
+
+    static_transformStamped.transform.translation.x = friction_x;
+    static_transformStamped.transform.translation.y = friction_y;
+    static_transformStamped.transform.translation.z = friction_z;
+
+    tf2::Quaternion friction_quat;
+    friction_quat.setRPY(friction_roll, friction_pitch, friction_yaw);
+    static_transformStamped.transform.rotation.x = friction_quat.x();
+    static_transformStamped.transform.rotation.y = friction_quat.y();
+    static_transformStamped.transform.rotation.z = friction_quat.z();
+    static_transformStamped.transform.rotation.w = friction_quat.w();
+
+    static_CameraToFrictionImage.sendTransform(static_transformStamped);
 }
 
 void tfTreeClass::Initialize(int argc, char **argv)
