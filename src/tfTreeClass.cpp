@@ -20,8 +20,8 @@ void tfTreeClass::WorldToMapTransform()
     static_transformStamped.transform.rotation.z = map_quat.z();
     static_transformStamped.transform.rotation.w = map_quat.w();
 
-    cout << map_roll << "\t" << map_pitch << "\t" << map_yaw << endl;
-    cout << map_quat.x() << "\t" << map_quat.y() << "\t" << map_quat.z() << "\t" << map_quat.w() << endl;
+    // cout << map_roll << "\t" << map_pitch << "\t" << map_yaw << endl;
+    // cout << map_quat.x() << "\t" << map_quat.y() << "\t" << map_quat.z() << "\t" << map_quat.w() << endl;
 
     static_WorldToMap.sendTransform(static_transformStamped);
 }
@@ -47,6 +47,8 @@ void tfTreeClass::MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
     transformStamped.transform.rotation.y = msg->pose.pose.orientation.y;// * map_quat.y();
     transformStamped.transform.rotation.z = msg->pose.pose.orientation.z;// * map_quat.z();
     transformStamped.transform.rotation.w = msg->pose.pose.orientation.w;// * map_quat.w();
+
+    cout << msg->pose.pose.orientation.x << "\t" << msg->pose.pose.orientation.y << "\t" << msg->pose.pose.orientation.z << "\t" << msg->pose.pose.orientation.w << endl; 
 
     WorldToMapTransform();
     MapToIns.sendTransform(transformStamped);
