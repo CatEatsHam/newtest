@@ -35,6 +35,14 @@
         <param name="lidar_rotation_roll"     	type="double"   value="0.0" />
         <param name="lidar_rotation_pitch"    	type="double"   value="0.0" />
         <param name="lidar_rotation_yaw"      	type="double"   value="1.57075" />
+
+        <param name="camera_translation_x"     	type="double"   value="0.0" />
+        <param name="camera_translation_y"     	type="double"   value="0.0" />
+        <param name="camera_translation_z"     	type="double"   value="1.016" />
+        <param name="camera_rotation_roll"     	type="double"   value="0.0" />
+        <param name="camera_rotation_pitch"    	type="double"   value="0.0" />
+        <param name="camera_rotation_yaw"      	type="double"   value="0.0" />
+
         
         <remap from="/odometry_data" to="/rtk/ins/odom" />
 
