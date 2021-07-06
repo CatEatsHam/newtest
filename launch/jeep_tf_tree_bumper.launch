@@ -51,7 +51,7 @@
         <param name="friction_rotation_pitch"    	type="double"   value="0.0" />
         <param name="friction_rotation_yaw"      	type="double"   value="0.0" />
         
-        <remap from="/odometry_data" to="/rtk/ins/odom" />
+        <remap from="/odometry_data" to="/ins/odom" />
 
     </node>
 
