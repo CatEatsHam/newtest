@@ -35,6 +35,7 @@ public:
     string ins_frame = "vectornav";
     string base_link_frame = "base_link";
     string lidar_frame = "os1_sensor";
+    string roof_lidar_frame = "roof/os1_sensor";
     string camera_frame = "camera";
     string radar_frame = "radar";
     string friction_frame = "friction_image";
@@ -51,6 +52,9 @@ public:
     // LiDAR translation and rotation from base_link to lidar
     float lidar_x = 0.0f, lidar_y = 0.0f, lidar_z = 0.0f, lidar_roll = 0.0f, lidar_pitch = 0.0f, lidar_yaw = 0.0f;
 
+    // LiDAR translation and rotation from base_link to lidar
+    float roof_lidar_x = 0.0f, roof_lidar_y = 0.0f, roof_lidar_z = 0.0f, roof_lidar_roll = 0.0f, roof_lidar_pitch = 0.0f, roof_lidar_yaw = 0.0f;
+
     // Camera translation and rotation from base_link to camera
     float camera_x = 0.0f, camera_y = 0.0f, camera_z = 0.0f, camera_roll = 0.0f, camera_pitch = 0.0f, camera_yaw = 0.0f;
 
@@ -63,6 +67,7 @@ public:
     void WorldToInsTransform(const nav_msgs::Odometry::ConstPtr& msg);
     void InsToBaseLinkTransform();
     void BaseLinkToLidarTransform();
+    void BaseLinkToRoofLidarTransform();
     void BaseLinkToCameraTransform();
     void BaseLinkToRadarTransform();
     void CameraToFrictionImageTransform();

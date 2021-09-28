@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     node.getParam("ins_frame", tf_tree->ins_frame);
     node.getParam("base_link_frame", tf_tree->base_link_frame);
     node.getParam("lidar_frame", tf_tree->lidar_frame);
+    node.getParam("roof_lidar_frame", tf_tree->roof_lidar_frame);
     node.getParam("camera_frame", tf_tree->camera_frame);
     node.getParam("radar_frame", tf_tree->radar_frame);
     node.getParam("friction_frame", tf_tree->friction_frame);
@@ -40,6 +41,13 @@ int main(int argc, char **argv)
     node.getParam("lidar_rotation_roll", tf_tree->lidar_roll);
     node.getParam("lidar_rotation_pitch", tf_tree->lidar_pitch);
     node.getParam("lidar_rotation_yaw", tf_tree->lidar_yaw);
+
+    node.getParam("roof_lidar_translation_x", tf_tree->roof_lidar_x);
+    node.getParam("roof_lidar_translation_y", tf_tree->roof_lidar_y);
+    node.getParam("roof_lidar_translation_z", tf_tree->roof_lidar_z);
+    node.getParam("roof_lidar_rotation_roll", tf_tree->roof_lidar_roll);
+    node.getParam("roof_lidar_rotation_pitch", tf_tree->roof_lidar_pitch);
+    node.getParam("roof_lidar_rotation_yaw", tf_tree->roof_lidar_yaw);
 
     node.getParam("camera_translation_x", tf_tree->camera_x);
     node.getParam("camera_translation_y", tf_tree->camera_y);

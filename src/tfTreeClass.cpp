@@ -54,6 +54,7 @@ void tfTreeClass::MapToInsTransform(const nav_msgs::Odometry::ConstPtr& msg)
     MapToIns.sendTransform(transformStamped);
     InsToBaseLinkTransform();
     BaseLinkToLidarTransform();
+    BaseLinkToRoofLidarTransform();
     BaseLinkToCameraTransform();
     CameraToFrictionImageTransform();
 }
@@ -103,6 +104,30 @@ void tfTreeClass::BaseLinkToLidarTransform()
 
     static_BaseLinkToLidar.sendTransform(static_transformStamped);
 }
+
+void tfTreeClass::BaseLinkToRoofLidarTransform()
+{
+    static tf2_ros::StaticTransformBroadcaster static_BaseLinkToLidar;
+    geometry_msgs::TransformStamped static_transformStamped;
+
+    static_transformStamped.header.stamp = ros::Time::now();
+    static_transformStamped.header.frame_id = base_link_frame;
+    static_transformStamped.child_frame_id = roof_lidar_frame;
+
+    static_transformStamped.transform.translation.x = roof_lidar_x;
+    static_transformStamped.transform.translation.y = roof_lidar_y;
+    static_transformStamped.transform.translation.z = roof_lidar_z;
+
+    tf2::Quaternion lidar_quat;
+    lidar_quat.setRPY(roof_lidar_roll, roof_lidar_pitch, roof_lidar_yaw);
+    static_transformStamped.transform.rotation.x = lidar_quat.x();
+    static_transformStamped.transform.rotation.y = lidar_quat.y();
+    static_transformStamped.transform.rotation.z = lidar_quat.z();
+    static_transformStamped.transform.rotation.w = lidar_quat.w();
+
+    static_BaseLinkToLidar.sendTransform(static_transformStamped);
+}
+
 
 void tfTreeClass::BaseLinkToCameraTransform()
 {
