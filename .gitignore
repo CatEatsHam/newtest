@@ -1,4 +1,10 @@
 # Python
+env
 __pycache__
 
-sbmodels
+# Vim
+*.swp
+
+# Training data
+models
+logs

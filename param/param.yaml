@@ -1,0 +1,4 @@
+continuous_env: False
+n_actions: 15
+model_name: "ppo_model"
+timesteps: 500000
