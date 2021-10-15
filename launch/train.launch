@@ -3,15 +3,15 @@
   <!-- Arguments -->
   <arg name="param_file" default="$(find gym_gazebo)/param/param.yaml"
     doc="Parameter file"/>
-  <arg name="log_path" default="$(find gym_gazebo)/logs"
-    doc="Log file path"/>
+  <arg name="log_dir" default="$(find gym_gazebo)/logs"
+    doc="Log directory"/>
   <arg name="model_dir" default="$(find gym_gazebo)/models"
-    doc="Log file directory"/>
+    doc="Model directory"/>
 
   <!-- Train node -->
-  <node pkg="gym_gazebo" type="sbtraining.py" name="sbtrain" output="screen">
+  <node pkg="gym_gazebo" type="train.py" name="train" output="screen">
     <rosparam file="$(arg param_file)"/>
-    <param name="log_path" value="$(arg log_path)"/>
+    <param name="log_dir" value="$(arg log_dir)"/>
     <param name="model_dir" value="$(arg model_dir)"/>
   </node>
 </launch>
