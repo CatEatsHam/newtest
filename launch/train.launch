@@ -7,11 +7,12 @@
     doc="Log directory"/>
   <arg name="model_dir" default="$(find gym_gazebo)/models"
     doc="Model directory"/>
+  <arg name="namespace" default="rl_env" doc="Namespace"/>
 
-  <!-- Train node -->
-  <node pkg="gym_gazebo" type="train.py" name="train" output="screen">
+  <!-- Parameters -->
+  <group ns="$(arg namespace)">
     <rosparam file="$(arg param_file)"/>
     <param name="log_dir" value="$(arg log_dir)"/>
     <param name="model_dir" value="$(arg model_dir)"/>
-  </node>
+  </group>
 </launch>
