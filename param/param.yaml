@@ -1,2 +1,2 @@
-model_name: "ppo_pause"
-timesteps: 10
+model_name: "ppo_model_fix"
+timesteps: 1000000
