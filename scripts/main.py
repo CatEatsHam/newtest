@@ -70,7 +70,7 @@ def evaluate(model_path, episodes=50):
     
     model = PPO.load(model_path)
     episode_rewards = []
-    goals = env.get_eval_goals()
+    goals = env.get_eval_goals(episodes)
     for goal in goals:
         done = False
         try:
@@ -106,4 +106,4 @@ if __name__ == '__main__':
     if action == 'train':
         train(model_path, log_dir, timesteps=timesteps, use_model=True)
     elif action == 'evaluate':
-        evaluate(model_path)
+        evaluate(model_path, episodes=50)

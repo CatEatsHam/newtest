@@ -29,6 +29,23 @@ def reset_gazebo():
         return False
     return True
 
+def timestep_gazebo(timestep):
+    rospy.wait_for_service('/gazebo/pause_physics')
+    pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+    rospy.wait_for_service('/gazebo/unpause_physics')
+    unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
+
+    try:
+        unpause()
+        rospy.sleep(timestep)
+        pause()
+    except rospy.exceptions.ROSTimeMovedBackwardsException:
+        rospy.logdebug('Caught ROSTimeMovedBackwardsException')
+    except rospy.ServiceException as ex:
+        rospy.logwarn('Gazebo reset unsuccessful: ' + str(ex))
+        return False
+    return True
+
 def distance(point1, point2):
     return ((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2) ** 0.5
 
@@ -88,6 +105,7 @@ class MobileRobotEnv(GazeboEnv):
                 dtype=np.float32)
         
         # Discrete action space
+        '''
         self.actions = {}
         #lx = np.linspace(0.0, 1.5, 12) # no reverse
         #az = np.linspace(-2.5, 2.5, 5)
@@ -103,6 +121,11 @@ class MobileRobotEnv(GazeboEnv):
         self.actions['az'] = az
         rospy.loginfo('action space: lx = %s az = %s' %(lx, az))
         self.action_space = gym.spaces.MultiDiscrete([lx.shape[0], az.shape[0]])
+        '''
+
+        # Continuous action space
+        self.action_space = gym.spaces.Box(low=-1.0, high=1.0, shape=(2,),
+                dtype=np.float32)
 
         self.goal = np.zeros(2) # x, y
         self.pose = np.zeros(3) # x, y, yaw
@@ -114,8 +137,8 @@ class MobileRobotEnv(GazeboEnv):
 
         # Model
         if self.use_model:
-            self.model = DifferentialDriveModel(wheel_radius=0.1,
-                    track_width=0.3765)
+            self.model = DifferentialDriveModel(wheel_radius=0.098,
+                    track_width=0.37559)
 
     def observe(self):
         # distance error
@@ -135,8 +158,13 @@ class MobileRobotEnv(GazeboEnv):
         # Reset Gazebo
         if not self.use_model:
             reset_gazebo()
+            timestep_gazebo(0.000001) # allow odometry to reset
+
         else:
             self.pose = np.zeros(3)
+
+        if self.evaluate:
+            self.path = []
 
         # Choose goal as random point on square
         p1 = self.square_distance * random.uniform(-1.0, 1.0)
@@ -162,17 +190,17 @@ class MobileRobotEnv(GazeboEnv):
 
     def step(self, action):
         # Get action
+        # discrete
+        '''
         lx = self.actions['lx'][action[0]]
         az = self.actions['az'][action[1]]
+        '''
+        # continuous
+        lx = 1.5 * (action[0] + 1.0) / 2.0
+        az = action[1]
 
         # Simulate timestep
-        if not self.use_model:
-            # Set up service proxies
-            rospy.wait_for_service('/gazebo/pause_physics')
-            pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
-            rospy.wait_for_service('/gazebo/unpause_physics')
-            unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
-         
+        if not self.use_model: 
             # Take action
             self.queue.put([lx, az]) # use command publisher
             '''
@@ -181,17 +209,13 @@ class MobileRobotEnv(GazeboEnv):
             msg.angular.z = az
             self.cmd_pub.publish(msg)
             '''
-            try:
-                unpause() # unpause Gazebo physics
-                rospy.sleep(self.timestep) # run physics for a timestep
-                pause() # pause Gazebo physics
-            except (rospy.exceptions.ROSTimeMovedBackwardsException,
-                    rospy.ServiceException):
-                rospy.logdebug('Caught Gazebo exception')
+            timestep_gazebo(self.timestep)
         else:
             self.pose = self.model.step(self.pose, (lx, az), self.timestep)
-
         self.episode_steps += 1
+
+        if self.evaluate:
+            self.path.append(self.pose[:2])
         
         # Make observation
         obs = self.observe()
@@ -239,7 +263,7 @@ class MobileRobotEnv(GazeboEnv):
             reward = 10.0
             self.stop_robot()
             if self.evaluate:
-                self.plot_result(True)
+                self.plot_result(success=True)
             return obs, reward, done, info
 
         # Normal step
@@ -278,14 +302,18 @@ class MobileRobotEnv(GazeboEnv):
         plt.title('Evaluation Results')
         plt.xlabel('meters')
         plt.ylabel('meters')
-        self.ax.scatter(0, 0, marker='+')
+        self.ax.scatter(0, 0, marker='+', color='black')
         plt.draw()
         plt.pause(0.1)
 
-    def plot_result(self, success=False):
+    def plot_result(self, success=False, path=True):
         marker_val = 'x'
         if success:
             marker_val = 'o'
         self.ax.scatter(self.goal[0], self.goal[1], marker=marker_val)
+        if path is not None:
+            x = [a[0] for a in self.path]
+            y = [a[1] for a in self.path]
+            self.ax.plot(x, y)
         plt.draw()
         plt.pause(0.1)
