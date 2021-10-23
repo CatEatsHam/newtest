@@ -11,6 +11,7 @@ from abc import abstractmethod
 import numpy as np
 import math
 import random
+from scipy.spatial.transform import Rotation
 
 import matplotlib
 matplotlib.use('TkAgg')
@@ -41,30 +42,6 @@ def heading_error(target, current):
         error = error_raw
     
     return error
-
-def euler_from_quaternion(x, y, z, w):
-    '''
-    Source: https://automaticaddison.com/how-to-convert-a-quaternion-into-euler-angles-in-python/
-
-    Convert a quaternion into euler angles (roll, pitch, yaw)
-    roll is rotation around x in radians (counterclockwise)
-    pitch is rotation around y in radians (counterclockwise)
-    yaw is rotation around z in radians (counterclockwise)
-    '''
-    t0 = +2.0 * (w * x + y * z)
-    t1 = +1.0 - 2.0 * (x * x + y * y)
-    roll_x = math.atan2(t0, t1)
-
-    t2 = +2.0 * (w * y - z * x)
-    t2 = +1.0 if t2 > +1.0 else t2
-    t2 = -1.0 if t2 < -1.0 else t2
-    pitch_y = math.asin(t2)
-
-    t3 = +2.0 * (w * z + x * y)
-    t4 = +1.0 - 2.0 * (y * y + z * z)
-    yaw_z = math.atan2(t3, t4)
-
-    return roll_x, pitch_y, yaw_z # radians
 
 class GazeboEnv(gym.Env):
     def __init__(self, command_queue):
@@ -112,10 +89,10 @@ class MobileRobotEnv(GazeboEnv):
         
         # Discrete action space
         self.actions = {}
-        lx = np.linspace(0.0, 1.5, 12) # no reverse
-        az = np.linspace(-2.5, 2.5, 5)
-        #lx = np.linspace(0.0, 1.4, 7) # no reverse
-        #az = np.linspace(-1.0, 1.0, 7)
+        #lx = np.linspace(0.0, 1.5, 12) # no reverse
+        #az = np.linspace(-2.5, 2.5, 5)
+        lx = np.linspace(0.0, 1.4, 7) # no reverse
+        az = np.linspace(-1.0, 1.0, 7)
         '''
         lx = np.arange(0.0, 1.0, 0.2)
         lx = np.append(lx, -lx[1:]) # include negative actions
@@ -128,7 +105,6 @@ class MobileRobotEnv(GazeboEnv):
         self.action_space = gym.spaces.MultiDiscrete([lx.shape[0], az.shape[0]])
 
         self.goal = np.zeros(2) # x, y
-        self.target_heading = 0.0
         self.pose = np.zeros(3) # x, y, yaw
         self.action = np.zeros(2) # lx, az
 
@@ -143,14 +119,16 @@ class MobileRobotEnv(GazeboEnv):
 
     def observe(self):
         # distance error
-        error_dist_norm = (self.pose[:2] - self.goal) / (self.square_distance +
-                self.bound)
+        error_distance_norm = (self.pose[:2] - self.goal) / (
+                self.square_distance + self.bound)
         
         # heading error
-        error_yaw = heading_error(self.target_heading, self.pose[2])
-        error_yaw_norm = error_yaw / np.pi
+        goal_heading = math.atan2(self.goal[1] - self.pose[1], self.goal[0] -
+                self.pose[0])
+        error_heading = heading_error(goal_heading, self.pose[2])
+        error_heading_norm = error_heading / np.pi
         
-        obs = np.append(error_dist_norm, error_yaw_norm)
+        obs = np.append(error_distance_norm, error_heading_norm)
         return obs
 
     def reset(self):
@@ -269,7 +247,8 @@ class MobileRobotEnv(GazeboEnv):
 
     def odom_callback(self, msg):
         q = msg.pose.pose.orientation
-        roll, pitch, yaw = euler_from_quaternion(q.x, q.y, q.z, q.w)
+        r = Rotation.from_quat([q.x, q.y, q.z, q.w])
+        roll, pitch, yaw = r.as_euler('xyz', degrees=False)
         self.pose = np.array([msg.pose.pose.position.x,
             msg.pose.pose.position.y, yaw])
 

@@ -71,6 +71,6 @@ if __name__ == '__main__':
     ddm = DifferentialDriveModel(wheel_radius=0.1, track_width=0.3765,
             plot=True)
     pose = np.zeros(3)
-    action = [1.2, 0.7]
+    action = [1.2, -0.7]
     for i in range(100):
         pose = ddm.step(pose, action)

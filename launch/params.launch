@@ -7,6 +7,7 @@
     doc="Log directory"/>
   <arg name="model_dir" default="$(find gym_gazebo)/models"
     doc="Model directory"/>
+  <arg name="action" default="evaluate" doc="train or evaluate"/>
   <arg name="namespace" default="rl_env" doc="Namespace"/>
 
   <!-- Parameters -->
@@ -14,5 +15,6 @@
     <rosparam file="$(arg param_file)"/>
     <param name="log_dir" value="$(arg log_dir)"/>
     <param name="model_dir" value="$(arg model_dir)"/>
+    <param name="action" value="$(arg action)"/>
   </group>
 </launch>
