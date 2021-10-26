@@ -111,12 +111,10 @@ class MobileRobotEnv(GazeboEnv):
         #az = np.linspace(-2.5, 2.5, 5)
         lx = np.linspace(0.0, 1.4, 7) # no reverse
         az = np.linspace(-1.0, 1.0, 7)
-        '''
-        lx = np.arange(0.0, 1.0, 0.2)
-        lx = np.append(lx, -lx[1:]) # include negative actions
-        az = np.arange(0.0, 1.0, 0.2)
-        az = np.append(az, -az[1:]) # include negative actions
-        '''
+        #lx = np.arange(0.0, 1.0, 0.2)
+        #lx = np.append(lx, -lx[1:]) # include negative actions
+        #az = np.arange(0.0, 1.0, 0.2)
+        #az = np.append(az, -az[1:]) # include negative actions
         self.actions['lx'] = lx
         self.actions['az'] = az
         rospy.loginfo('action space: lx = %s az = %s' %(lx, az))
@@ -196,8 +194,8 @@ class MobileRobotEnv(GazeboEnv):
         az = self.actions['az'][action[1]]
         '''
         # continuous
-        lx = 1.5 * (action[0] + 1.0) / 2.0
-        az = action[1]
+        lx = 1.5 * (action[0] + 1.0) / 2.0 # [0.0, 1.5]
+        az = action[1] # [-1.0, 1.0]
 
         # Simulate timestep
         if not self.use_model: 

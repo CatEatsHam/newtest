@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Start ROS core
-roscore
-
 # Load ROS parameters
 roslaunch gym_gazebo params.launch action:=train
 

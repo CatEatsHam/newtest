@@ -101,9 +101,10 @@ if __name__ == '__main__':
     model_name = rospy.get_param('rl_env/model_name', 'model')
     timesteps = rospy.get_param('rl_env/timesteps', 500000)
     action = rospy.get_param('rl_env/action', 'evaluate')
+    use_model = rospy.get_param('rl_env/use_model', True)
     model_path = model_dir + '/' + model_name
 
     if action == 'train':
-        train(model_path, log_dir, timesteps=timesteps, use_model=True)
+        train(model_path, log_dir, timesteps=timesteps, use_model=use_model)
     elif action == 'evaluate':
         evaluate(model_path, episodes=50)
