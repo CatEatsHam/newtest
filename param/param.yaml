@@ -1,2 +1,2 @@
-model_name: "ppo_gazebo"
+model_name: "ppo_cont_act_800K"
 timesteps: 1000000

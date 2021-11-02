@@ -2,6 +2,7 @@
 
 import rospy
 import sys
+from pathlib import Path
 import multiprocessing as mp
 import numpy as np
 from stable_baselines3 import PPO
@@ -85,6 +86,8 @@ def evaluate(model_path, episodes=50):
             episode_reward += reward
             if done:
                 episode_rewards.append(episode_reward)
+    plot_path = Path(model_path).with_suffix('.svg')
+    env.plot_save(plot_path) # save plot
 
     total = 0.0
     for r in episode_rewards:

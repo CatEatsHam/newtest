@@ -5,6 +5,8 @@ import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_srvs.srv import Empty
+from controller_manager_msgs.srv import (SwitchController,
+        SwitchControllerRequest, SwitchControllerResponse)
 
 import gym
 from abc import abstractmethod
@@ -19,7 +21,17 @@ import matplotlib.pyplot as plt
 
 from differential_drive_model import DifferentialDriveModel
 
-def reset_gazebo():
+def reset_world():
+    rospy.wait_for_service('/gazebo/reset_world')
+    reset = rospy.ServiceProxy('/gazebo/reset_world', Empty)
+    try:
+        reset()
+    except rospy.ServiceException as ex:
+        rospy.logwarn('Gazebo reset unsuccessful: ' + str(ex))
+        return False
+    return True
+
+def reset_simulation():
     rospy.wait_for_service('/gazebo/reset_simulation')
     reset = rospy.ServiceProxy('/gazebo/reset_simulation', Empty)
     try:
@@ -28,6 +40,23 @@ def reset_gazebo():
         rospy.logwarn('Gazebo reset unsuccessful: ' + str(ex))
         return False
     return True
+
+def switch_controller(on=True):
+    rospy.wait_for_service('/controller_manager/switch_controller')
+    switch = rospy.ServiceProxy('/controller_manager/switch_controller',
+            SwitchController)
+    controller = 'jackal_velocity_controller'
+    req = SwitchControllerRequest()
+    if on:
+        req.start_controllers.append(controller)
+    else:
+        req.stop_controllers.append(controller)
+    try:
+        res = switch(req)
+    except rospy.ServiceException as ex:
+        rospy.logwarn('Controller switch unsuccessful: ' + str(ex))
+        return False
+    return res.ok
 
 def timestep_gazebo(timestep):
     rospy.wait_for_service('/gazebo/pause_physics')
@@ -42,7 +71,7 @@ def timestep_gazebo(timestep):
     except rospy.exceptions.ROSTimeMovedBackwardsException:
         rospy.logdebug('Caught ROSTimeMovedBackwardsException')
     except rospy.ServiceException as ex:
-        rospy.logwarn('Gazebo reset unsuccessful: ' + str(ex))
+        rospy.logwarn('Gazebo timestep unsuccessful: ' + str(ex))
         return False
     return True
 
@@ -155,7 +184,8 @@ class MobileRobotEnv(GazeboEnv):
     def reset(self):
         # Reset Gazebo
         if not self.use_model:
-            reset_gazebo()
+            #reset_simulation()
+            reset_world()
             timestep_gazebo(0.000001) # allow odometry to reset
 
         else:
@@ -315,3 +345,6 @@ class MobileRobotEnv(GazeboEnv):
             self.ax.plot(x, y)
         plt.draw()
         plt.pause(0.1)
+
+    def plot_save(self, filename='plot'):
+        plt.savefig(filename)
