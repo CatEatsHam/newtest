@@ -1,0 +1,51 @@
+<launch>
+
+    <node pkg="tf_tree_publisher" type="tf_tree_publisher_node" name="tf_tree_publisher"  output="screen" >
+        
+        <param name="num_of_ins"            	type="int"  	value="1" />
+        <param name="num_of_lidar"          	type="int"    value="1" />
+        <param name="num_of_camera"         	type="int"    value="1" />
+        <param name="num_of_radar"          	type="int"    value="0" />
+
+        <param name="world_frame"           	type="str"    value="world" />
+        <param name="map_frame"             	type="str"    value="map" />
+        <param name="ins_frame"             	type="str"    value="ins" />
+        <param name="base_link_frame"       	type="str"    value="baselink" />
+        <param name="lidar_frame"           	type="str"    value="os_sensor" />
+        <param name="camera_frame"          	type="str"    value="camera" />
+        <param name="radar_frame"           	type="str"    value="radar" />
+
+        <param name="map_translation_x"     	type="double"   value="741331.804017" />
+        <param name="map_translation_y"     	type="double"   value="3391511.58541" />
+        <param name="map_translation_z"     	type="double"   value="0.0" />
+        <param name="map_rotation_roll"     	type="double"   value="0.0" />
+        <param name="map_rotation_pitch"    	type="double"   value="0.0" />
+        <param name="map_rotation_yaw"      	type="double"   value="0.0" />
+
+        <param name="base_link_translation_x"	  type="double"   value="0.0" />
+        <param name="base_link_translation_y"	  type="double"   value="0.0" />
+        <param name="base_link_translation_z" 	type="double"   value="0.0" />
+        <param name="base_link_rotation_roll" 	type="double"   value="0.0" />
+        <param name="base_link_rotation_pitch"	type="double"   value="0.0" />
+        <param name="base_link_rotation_yaw"    type="double"   value="0.0" />
+
+        <param name="lidar_translation_x"     	type="double"   value="0.0635" />
+        <param name="lidar_translation_y"     	type="double"   value="0.0" />
+        <param name="lidar_translation_z"     	type="double"   value="1.067" />
+        <param name="lidar_rotation_roll"     	type="double"   value="0.0" />
+        <param name="lidar_rotation_pitch"    	type="double"   value="0.0" />
+        <param name="lidar_rotation_yaw"      	type="double"   value="1.57075" />
+
+        <param name="camera_translation_x"     	type="double"   value="0.0" />
+        <param name="camera_translation_y"     	type="double"   value="0.0" />
+        <param name="camera_translation_z"     	type="double"   value="1.016" />
+        <param name="camera_rotation_roll"     	type="double"   value="0.0" />
+        <param name="camera_rotation_pitch"    	type="double"   value="0.0" />
+        <param name="camera_rotation_yaw"      	type="double"   value="0.0" />
+
+        
+        <remap from="/odometry_data" to="/gv02/odom" />
+
+    </node>
+
+</launch>
