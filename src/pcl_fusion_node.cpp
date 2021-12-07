@@ -7,7 +7,6 @@
 #include <pcl_ros/transforms.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/PCLPointCloud2.h>
-
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
 
@@ -19,7 +18,6 @@ ros::Publisher pub;
 
 std::string inputTopic1;
 std::string inputTopic2;
-
 std::string outputTopic;
 
 void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& cloud_msg2)
@@ -59,7 +57,6 @@ void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& 
     pcl_ros::transformPointCloud(targetFrame, transform, ros_cloud2, transformed_cloud2);
 
 
-
     //******** PCL data management
 
     // Creates PCL point cloud 2 variable and stores data to it
@@ -77,11 +74,13 @@ void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& 
     pcl::PCLPointCloud2 const const_cloud2 = *cloud2;
 
 
-    //******** Combining clouds, ROS conversion and output
+    //******** Combining clouds
     // Create output cloud message and then combine point clouds
     pcl::PCLPointCloud2 combined_cloud;
     pcl::concatenatePointCloud(const_cloud1, const_cloud2, combined_cloud);
 
+
+    //******** ROS conversion and output
     // Create output ROS message and then convert PCL to ROS
     sensor_msgs::PointCloud2 output;
     pcl_conversions::fromPCL(combined_cloud, output);
@@ -102,7 +101,7 @@ void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& 
     // Get parameters from ROS parameter server
     ros::param::get("/inputTopic1", inputTopic1);
     ros::param::get("/inputTopic2", inputTopic2);
-    ros::param::get("/outputTopic", outputTopic);
+    ros::param::get("/outputTopic", outputTopic); 
     ROS_INFO("The first input topic is %s" , inputTopic1.c_str());
     ROS_INFO("The second input topic is %s" , inputTopic2.c_str());
     ROS_INFO("The output topic is %s" , outputTopic.c_str());
@@ -111,11 +110,9 @@ void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& 
     message_filters::Subscriber<PointCloud2> lidar_sub1(nh, inputTopic1, 1);
     message_filters::Subscriber<PointCloud2> lidar_sub2(nh, inputTopic2, 1);
 
+    // Create time synchronizer using lidar subscribers
     typedef sync_policies::ApproximateTime<PointCloud2, PointCloud2> MySyncPolicy;
     Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), lidar_sub1, lidar_sub2);
-
-    // Create time synchronizer using lidar subscribers
-    // TimeSynchronizer<PointCloud2, PointCloud2> sync(lidar_sub1, lidar_sub2, 10);
 
     // Register pointcloud2 messages to callback method
     sync.registerCallback(boost::bind(&callback, _1, _2));
