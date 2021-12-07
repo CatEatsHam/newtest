@@ -9,6 +9,7 @@
 #include <pcl/PCLPointCloud2.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
+#include <chrono>
 
 using namespace sensor_msgs;
 using namespace message_filters;
@@ -19,9 +20,14 @@ ros::Publisher pub;
 std::string inputTopic1;
 std::string inputTopic2;
 std::string outputTopic;
+std::double_t averageTime = 0;
+std::double_t sumTime = 0;
+std::int16_t loop_count = 0;
 
 void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& cloud_msg2)
   {
+    auto start = std::chrono::high_resolution_clock::now();
+
     //****** Creating TF transform
     // Save target and child tf frames to variables
     std::string targetFrame = cloud_msg1->header.frame_id;
@@ -88,6 +94,13 @@ void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& 
     // Publish the combined output
     pub.publish(output);
 
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    loop_count +=1;
+    sumTime += duration.count();
+    averageTime = sumTime / loop_count;
+    cout << "Average delay over " << loop_count << " callbacks: " << averageTime / 1000 << " milliseconds" << endl;
   }
   
   int main(int argc, char** argv)
