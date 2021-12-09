@@ -42,9 +42,6 @@ class pcl_fusion_node {
       std::cout << std::endl;
       ROS_INFO("pcl_fusion Node Initialize");
 
-      // Create a ROS publisher for the output point cloud
-      pub = nh.advertise<PointCloud2> (outputTopic, 1);
-
       // Get parameters from ROS parameter server
       ros::param::get("/inputTopic1", inputTopic1);
       ros::param::get("/inputTopic2", inputTopic2);
@@ -61,6 +58,9 @@ class pcl_fusion_node {
       // Register pointcloud2 messages to callback method
       sync.reset(new Sync(MySyncPolicy(10), lidar_sub1, lidar_sub2));
       sync->registerCallback(boost::bind(&pcl_fusion_node::callback, this, _1, _2));
+
+      // Create a ROS publisher for the output point cloud
+      pub = nh.advertise<PointCloud2> (outputTopic, 1);
 
     }
 
