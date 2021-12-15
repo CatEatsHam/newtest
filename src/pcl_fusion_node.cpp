@@ -24,6 +24,8 @@ class pcl_fusion_node {
     std::double_t sumTime = 0;
     std::int16_t loop_count = 0;
 
+    int queue_size;
+
     std::string inputTopic1;
     std::string inputTopic2;
     std::string outputTopic;
@@ -37,6 +39,30 @@ class pcl_fusion_node {
     typedef Synchronizer<MySyncPolicy> Sync;
     boost::shared_ptr<Sync> sync;
 
+    // Initialize target and child tf frames
+    std::string targetFrame;
+    std::string childFrame;
+
+    // Create tf transformer and listener
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
+
+    // Create ros sensor messages
+    sensor_msgs::PointCloud2 ros_cloud2;
+    sensor_msgs::PointCloud2 transformed_cloud2;
+
+    // Creates PCL point cloud 2 variable to store data
+    pcl::PCLPointCloud2* cloud1 = new pcl::PCLPointCloud2;
+    pcl::PCLPointCloud2* cloud2 = new pcl::PCLPointCloud2;
+
+    // Create output PCL and ROS variables
+    pcl::PCLPointCloud2 combined_cloud;
+    sensor_msgs::PointCloud2 output;
+
+    // Timing Variables
+    std::chrono::_V2::system_clock::time_point stop;
+    std::chrono::microseconds duration;
+
     public:
     pcl_fusion_node() {
       std::cout << std::endl;
@@ -45,18 +71,20 @@ class pcl_fusion_node {
       // Get parameters from ROS parameter server
       ros::param::get("/inputTopic1", inputTopic1);
       ros::param::get("/inputTopic2", inputTopic2);
-      ros::param::get("/outputTopic", outputTopic); 
+      ros::param::get("/outputTopic", outputTopic);
+      ros::param::get("/queue_size", queue_size);
 
       ROS_INFO("The first input topic is %s" , inputTopic1.c_str());
       ROS_INFO("The second input topic is %s" , inputTopic2.c_str());
       ROS_INFO("The output topic is %s" , outputTopic.c_str());
+      ROS_INFO("The queue_size is %i" , queue_size);
 
       // Subscribe to lidar input topics using message filter
       lidar_sub1.subscribe(nh, inputTopic1, 1);
       lidar_sub2.subscribe(nh, inputTopic2, 1);
 
       // Register pointcloud2 messages to callback method
-      sync.reset(new Sync(MySyncPolicy(10), lidar_sub1, lidar_sub2));
+      sync.reset(new Sync(MySyncPolicy(1), lidar_sub1, lidar_sub2));
       sync->registerCallback(boost::bind(&pcl_fusion_node::callback, this, _1, _2));
 
       // Create a ROS publisher for the output point cloud
@@ -66,16 +94,15 @@ class pcl_fusion_node {
 
     void callback(const PointCloud2ConstPtr& cloud_msg1, const PointCloud2ConstPtr& cloud_msg2)
       {
+        // Start time for callback timing purposes
         auto start = std::chrono::high_resolution_clock::now();
 
-        //****** Creating TF transform
-        // Save target and child tf frames to variables
-        std::string targetFrame = cloud_msg1->header.frame_id;
-        std::string childFrame = cloud_msg2->header.frame_id;
 
-        // Create tf transformer and listener
-        tf::TransformListener listener;
-        tf::StampedTransform transform;
+        //****** TF transform creation
+
+        // Save target and child tf frames to variables
+        targetFrame = cloud_msg1->header.frame_id;
+        childFrame = cloud_msg2->header.frame_id;
 
         try{
         // Try to lookup transform from child frame to target frame
@@ -91,51 +118,38 @@ class pcl_fusion_node {
         }
 
 
+
         // ****** Transforming second lidar message
 
-        // // Dereference the second lidar cloud by storing to a variable
-        sensor_msgs::PointCloud2 const ros_cloud2 = *cloud_msg2;
+        // Dereference the second lidar cloud by storing to a variable
+        ros_cloud2 = *cloud_msg2;
 
-        // // Create transformed cloud storage variable
-        sensor_msgs::PointCloud2 transformed_cloud2;
-
-        // // Transforms the lidar cloud into the target frame -- uses the <pcl_ros/transforms.h> import
+        // Transform the lidar cloud into the target frame -- uses the <pcl_ros/transforms.h> import
         pcl_ros::transformPointCloud(targetFrame, transform, ros_cloud2, transformed_cloud2);
+
 
 
         //******** PCL data management
 
-        // Creates PCL point cloud 2 variable and stores data to it
-        pcl::PCLPointCloud2* cloud1 = new pcl::PCLPointCloud2;
-        pcl::PCLPointCloud2ConstPtr cloudPtr1(cloud1);
+        // Writes the callback and transformed data to a PCL point cloud 2 message
         pcl_conversions::toPCL(*cloud_msg1, *cloud1);
-
-        // Creates PCL point cloud 2 variable for transformed point cloud
-        pcl::PCLPointCloud2* cloud2 = new pcl::PCLPointCloud2;
-        pcl::PCLPointCloud2ConstPtr cloudPtr2(cloud2);
         pcl_conversions::toPCL(transformed_cloud2, *cloud2);
 
-        // Dereference PCL point cloud pointers for addition
-        pcl::PCLPointCloud2 const const_cloud1 = *cloud1;
-        pcl::PCLPointCloud2 const const_cloud2 = *cloud2;
+        // Combining clouds
+        pcl::concatenatePointCloud(*cloud1, *cloud2, combined_cloud);
 
-
-        //******** Combining clouds
-        // Create output cloud message and then combine point clouds
-        pcl::PCLPointCloud2 combined_cloud;
-        pcl::concatenatePointCloud(const_cloud1, const_cloud2, combined_cloud);
-
-
-        //******** ROS conversion and output
-        // Create output ROS message and then convert PCL to ROS
-        sensor_msgs::PointCloud2 output;
+        // ROS conversion and output
         pcl_conversions::fromPCL(combined_cloud, output);
 
         // Publish the combined output
         pub.publish(output);
 
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+
+        //******** Timing calculation and print out
+
+        stop = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
 
         loop_count +=1;
         sumTime += duration.count();

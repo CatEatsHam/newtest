@@ -9,4 +9,6 @@
 
         <param name="/outputTopic" value="/combined_lidar/points" type="string" />
 
+        <param name="/queue_size" value="1" type="int" />
+
 </launch>
