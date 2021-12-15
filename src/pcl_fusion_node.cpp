@@ -20,10 +20,6 @@ class pcl_fusion_node {
     ros::NodeHandle nh;
     ros::Publisher pub;
 
-    std::double_t averageTime = 0;
-    std::double_t sumTime = 0;
-    std::int16_t loop_count = 0;
-
     int queue_size;
 
     std::string inputTopic1;
@@ -60,8 +56,13 @@ class pcl_fusion_node {
     sensor_msgs::PointCloud2 output;
 
     // Timing Variables
+    std::chrono::_V2::system_clock::time_point start;
     std::chrono::_V2::system_clock::time_point stop;
     std::chrono::microseconds duration;
+
+    std::double_t averageTime = 0;
+    std::double_t sumTime = 0;
+    std::int16_t loop_count = 0;
 
     public:
     pcl_fusion_node() {
