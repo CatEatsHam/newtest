@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pcl_fusion)
+project(pcl_voxel_filter)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -7,21 +7,22 @@ project(pcl_fusion)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+
+find_package(PCL 1.12.1 REQUIRED)
+
 find_package(catkin REQUIRED COMPONENTS
 roscpp
 rospy
 sensor_msgs
 std_msgs
-pcl_conversions
-pcl_ros
+# pcl_ros
+# pcl_conversions
 message_filters
+dynamic_reconfigure
 )
-
-# find_package(PCL 1.12.0 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -94,10 +95,11 @@ message_filters
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+  cfg/voxel.cfg
+  # cfg/DynReconf1.cfg
+  # cfg/DynReconf2.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -110,14 +112,14 @@ message_filters
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
- LIBRARIES pcl_fusion
+ LIBRARIES pcl_voxel_filter
  CATKIN_DEPENDS
    roscpp
    rospy
    sensor_msgs
    std_msgs
-   pcl_conversions
-   pcl_ros
+  #  pcl_ros
+  #  pcl_conversions
    message_filters
 #  DEPENDS system_lib
 )
@@ -131,22 +133,38 @@ catkin_package(
 include_directories(
 #   include
   ${catkin_INCLUDE_DIRS}
+  # ${PCL_INCLUDE_DIRS}
+  /usr/local/include/pcl-1.11/
 )
+# message(status, ${PCL_INCLUDE_DIRS})
+# message(status, ${PCL_LIBRARIES})
+
+
+# add_definitions( ${PCL_DEFINITIONS} )
+
+link_directories( 
+  /usr/local/lib
+  )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pcl_fusion.cpp
+#   src/${PROJECT_NAME}/pcl_voxel_filter.cpp
 # )
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME}_core ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})pcl_fusion
+
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/pcl_fusion_node.cpp)
+
+add_executable(voxelGridFilter src/voxelGridFilter.cpp)
+# add_executable(${PROJECT_NAME}_node src/pcl_voxel_filter_node.cpp)
+
 #add_executable(old_fusion_node src/old_fusion_node.cpp)
 
 ## Rename C++ executable without prefix
@@ -158,11 +176,21 @@ add_executable(${PROJECT_NAME}_node src/pcl_fusion_node.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(voxelGridFilter ${PROJECT_NAME}_gencfg ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
-  ${catkin_LIBRARIES}
-)
+
+# message(status, ${catkin_LIBRARIES})
+# message(status, ${PCL_LIBRARIES})
+
+target_link_libraries(voxelGridFilter ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+# target_link_libraries(pcl_voxel_filter_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+# target_link_libraries(voxelGridFilter ${catkin_LIBRARIES} PATHS)
+
+# target_link_libraries(pcl_voxel_filter_node ${catkin_LIBRARIES} PATHS)
+
 
 #############
 ## Install ##
@@ -211,7 +239,7 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_pcl_fusion.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_pcl_voxel_filter.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

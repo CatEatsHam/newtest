@@ -85,7 +85,7 @@ class pcl_fusion_node {
       lidar_sub2.subscribe(nh, inputTopic2, 1);
 
       // Register pointcloud2 messages to callback method
-      sync.reset(new Sync(MySyncPolicy(1), lidar_sub1, lidar_sub2));
+      sync.reset(new Sync(MySyncPolicy(queue_size), lidar_sub1, lidar_sub2));
       sync->registerCallback(boost::bind(&pcl_fusion_node::callback, this, _1, _2));
 
       // Create a ROS publisher for the output point cloud

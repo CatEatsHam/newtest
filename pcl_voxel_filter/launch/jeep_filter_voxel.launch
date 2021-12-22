@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <!-- Run voxel grid filter -->
+  	<node pkg="pcl_voxel_filter" type="voxelGridFilter" name="voxel_grid_filter" output="screen">
+			<param name="inputTopic" value="/combined_lidar/points" type="string" />
+      <param name="outputTopic" value="/filtered_lidar/points" type="string" />
+      <param name="minPoints" value="4" type="int"/>
+      <rosparam param="leafSize">[0.1, 0.1, 0.1]</rosparam>     
+    </node>
+
+  <!-- Run rviz -->
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find pointcloud_filter)/config/voxel_filter.rviz" /> -->
+
+</launch>
