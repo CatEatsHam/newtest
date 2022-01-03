@@ -32,6 +32,7 @@ class voxel_filter_node {
     pcl::VoxelGrid<pcl::PCLPointCloud2> pcl_voxel;
     std::vector<double> leafSize;
     int minPoints;
+    double minRange;
 
     sensor_msgs::PointCloud2 output;
 
@@ -59,11 +60,13 @@ class voxel_filter_node {
       ros::param::get("~outputTopic", outputTopic);
       ros::param::get("~leafSize", leafSize);
       ros::param::get("~minPoints", minPoints);
+      ros::param::get("~minRange", minRange);
 
       ROS_INFO("The input topic is %s" , inputTopic.c_str());
       ROS_INFO("The output topic is %s" , outputTopic.c_str());
       ROS_INFO("The minimum points in a voxel is %i" , minPoints);
       ROS_INFO("Leaf size set to: %0.3f, %0.3f, %0.3f" , leafSize[0], leafSize[1], leafSize[2]);
+      // ROS_INFO("The minimum range is: #")
 
       // Subscribe to lidar input topic
       sub = nh.subscribe(inputTopic, 1, &voxel_filter_node::lidar_callback, this);
@@ -92,6 +95,7 @@ class voxel_filter_node {
 
         // Load point cloud into voxel class
         pcl_voxel.setInputCloud(cloudPtr);
+        // pcl_voxel.setFilterFieldName("range");
         pcl_voxel.setDownsampleAllData(true);
 
         filter();
@@ -103,6 +107,7 @@ class voxel_filter_node {
     {
         // Set size of voxel leaves and output voxel grid to cloud_filtered
         pcl_voxel.setDownsampleAllData(true);
+        // pcl_voxel.setFilterLimits((float)(minRange/1000), (float)120);
         pcl_voxel.setLeafSize (leafSize[0], leafSize[1], leafSize[2]);
         pcl_voxel.setMinimumPointsNumberPerVoxel(minPoints);
 
@@ -141,6 +146,7 @@ class voxel_filter_node {
       ROS_INFO("Reconfigure Request:");
       ROS_INFO("Leaf Size, lwh:%f %f %f", config.leaf_length, config.leaf_width, config.leaf_height);
       ROS_INFO("Minimum Points: %d", config.min_points);
+      ROS_INFO("Minimum Range: %d", config.min_range);
       
       // Assign callback variables to globals
       leafSize[0] = config.leaf_length;
