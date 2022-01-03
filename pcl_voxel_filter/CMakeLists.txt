@@ -134,7 +134,7 @@ include_directories(
 #   include
   ${catkin_INCLUDE_DIRS}
   # ${PCL_INCLUDE_DIRS}
-  /usr/local/include/pcl-1.11/
+  /usr/local/include/pcl-1.12/
 )
 # message(status, ${PCL_INCLUDE_DIRS})
 # message(status, ${PCL_LIBRARIES})

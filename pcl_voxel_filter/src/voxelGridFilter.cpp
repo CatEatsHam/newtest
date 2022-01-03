@@ -10,6 +10,7 @@
 #include <pcl/filters/voxel_grid.h>
 
 #include <pcl/pcl_config.h>
+#include <pcl/types.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <pcl_voxel_filter/VoxelConfig.h>
@@ -66,7 +67,7 @@ class voxel_filter_node {
       ROS_INFO("The output topic is %s" , outputTopic.c_str());
       ROS_INFO("The minimum points in a voxel is %i" , minPoints);
       ROS_INFO("Leaf size set to: %0.3f, %0.3f, %0.3f" , leafSize[0], leafSize[1], leafSize[2]);
-      // ROS_INFO("The minimum range is: #")
+      ROS_INFO("The minimum range is: %0.3f", minRange);
 
       // Subscribe to lidar input topic
       sub = nh.subscribe(inputTopic, 1, &voxel_filter_node::lidar_callback, this);
@@ -85,17 +86,22 @@ class voxel_filter_node {
         // Start time for callback timing purposes
         start = std::chrono::high_resolution_clock::now();
 
+
         // Convert to PCL data type
         pcl::PCLPointCloud2* cloud = new pcl::PCLPointCloud2;
         toPCL(*cloud_msg, *cloud);
+
+        cloud->fields[8].datatype = 7;
+
         pcl::PCLPointCloud2ConstPtr cloudPtr(cloud);
-        
+
+
         // std::cerr << "PointCloud before filtering: " << cloud->width * cloud->height 
         // << " data points (" << pcl::getFieldsList (*cloud) << ")." << std::endl;
 
         // Load point cloud into voxel class
         pcl_voxel.setInputCloud(cloudPtr);
-        // pcl_voxel.setFilterFieldName("range");
+        pcl_voxel.setFilterFieldName("range");
         pcl_voxel.setDownsampleAllData(true);
 
         filter();
@@ -107,7 +113,7 @@ class voxel_filter_node {
     {
         // Set size of voxel leaves and output voxel grid to cloud_filtered
         pcl_voxel.setDownsampleAllData(true);
-        // pcl_voxel.setFilterLimits((float)(minRange/1000), (float)120);
+        pcl_voxel.setFilterLimits(minRange, 120);
         pcl_voxel.setLeafSize (leafSize[0], leafSize[1], leafSize[2]);
         pcl_voxel.setMinimumPointsNumberPerVoxel(minPoints);
 
@@ -142,18 +148,19 @@ class voxel_filter_node {
 
     void rqt_callback(pcl_voxel_filter::VoxelConfig &config, uint32_t level)
     {
-      // Display recieved variables
-      ROS_INFO("Reconfigure Request:");
-      ROS_INFO("Leaf Size, lwh:%f %f %f", config.leaf_length, config.leaf_width, config.leaf_height);
-      ROS_INFO("Minimum Points: %d", config.min_points);
-      ROS_INFO("Minimum Range: %d", config.min_range);
-      
       // Assign callback variables to globals
       leafSize[0] = config.leaf_length;
       leafSize[1] = config.leaf_width;
       leafSize[2] = config.leaf_height;
       minPoints = config.min_points;
-
+      minRange = config.min_range * pow(10, -41);
+      
+      // Display recieved variables
+      ROS_INFO("Reconfigure Request:");
+      ROS_INFO("Leaf Size, lwh:%f %f %f", leafSize[1], leafSize[1], leafSize[2]);
+      ROS_INFO("Minimum Points: %d", minPoints);
+      ROS_INFO("Minimum Range: %f", minRange);
+      
     }
 
 
@@ -180,7 +187,7 @@ class voxel_filter_node {
       pcl_header.seq = header.seq;
       pcl_header.frame_id = header.frame_id;
     }
-    void toPCL(const ros::Time &stamp, pcl::uint64_t &pcl_stamp)
+    void toPCL(const ros::Time &stamp, uint64_t &pcl_stamp)
     {
       pcl_stamp = stamp.toNSec() / 1000ull;  // Convert from ns to us
     }
@@ -238,7 +245,7 @@ class voxel_filter_node {
         fromPCL(*(it), pfs[i]);
       }
     }
-    void fromPCL(const pcl::uint64_t &pcl_stamp, ros::Time &stamp)
+    void fromPCL(const uint64_t &pcl_stamp, ros::Time &stamp)
     {
       stamp.fromNSec(pcl_stamp * 1000ull);  // Convert from us to ns
     }
