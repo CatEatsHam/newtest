@@ -59,7 +59,6 @@ class pcl_fusion_node {
     std::chrono::_V2::system_clock::time_point start;
     std::chrono::_V2::system_clock::time_point stop;
     std::chrono::microseconds duration;
-
     std::double_t averageTime = 0;
     std::double_t sumTime = 0;
     std::int16_t loop_count = 0;
