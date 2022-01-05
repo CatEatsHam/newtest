@@ -34,10 +34,13 @@ class voxel_filter_node {
     std::string outputTopic;
     std::vector<double> leafSize;
     int minPoints;
+    double minPointsRange;
     double minRange;
 
     // PCL variable setup
     pcl::PCLPointCloud2 cloud_filtered;
+    pcl::PCLPointCloud2 short_filtered;
+    pcl::PCLPointCloud2 long_filtered;
     pcl::VoxelGrid<pcl::PCLPointCloud2> pcl_voxel;
 
     // Final ROS output message
@@ -67,13 +70,15 @@ class voxel_filter_node {
       ros::param::get("~outputTopic", outputTopic);
       ros::param::get("~leafSize", leafSize);
       ros::param::get("~minPoints", minPoints);
+      ros::param::get("~minPointsRange", minPointsRange);
       ros::param::get("~minRange", minRange);
 
       // Print used parameters
       ROS_INFO("The input topic is %s" , inputTopic.c_str());
       ROS_INFO("The output topic is %s" , outputTopic.c_str());
-      ROS_INFO("The minimum points in a voxel is %i" , minPoints);
       ROS_INFO("Leaf size set to: %0.3f, %0.3f, %0.3f" , leafSize[0], leafSize[1], leafSize[2]);
+      ROS_INFO("The minimum points in a voxel is %i" , minPoints);
+      ROS_INFO("The minimum points range is: %0.3f", minPointsRange);
       ROS_INFO("The minimum range is: %0.3f", minRange);
 
       // Subscribe to lidar input topic
@@ -113,12 +118,73 @@ class voxel_filter_node {
         // Load point cloud into voxel class
         pcl_voxel.setInputCloud(cloudPtr);
 
-        filter();
+        // Previous function using one stage filtering
+        // filterAll();
+
+        // Seperate and filter the further away section of the point cloud with no min_points filter
+        filterLong();
+
+        //Seperate and filter the closer section of the point cloud 
+        filterShort();
+
+        // Combine the two seperate point clouds back together, currently adding only a few milliseconds of delay to the process
+        combine();
 
         publish();
       }
 
-    void filter()
+
+    void filterLong()
+    {
+      // Sets voxel grid to downsample all fields rather than just XYZ
+      pcl_voxel.setDownsampleAllData(true);
+
+      // Sets up for range based filtering
+      pcl_voxel.setFilterFieldName("range");
+
+      // Filters range between minRange and 120 (max distance of lidar)
+      // For ouster workaround minRange is multiplied by 10^-41 for uint32 (mm) to float32 (m) compensation
+      pcl_voxel.setFilterLimits(minPointsRange * pow(10, -41), 120);
+
+      // Leaf size (length, width and height of voxels) is set
+      pcl_voxel.setLeafSize (leafSize[0], leafSize[1], leafSize[2]);
+
+      // Minimum points filter is loaded
+      pcl_voxel.setMinimumPointsNumberPerVoxel(1);
+
+      // Voxel is filtered
+      pcl_voxel.filter(long_filtered);
+    }
+
+    void filterShort()
+    {
+      // Sets voxel grid to downsample all fields rather than just XYZ
+      pcl_voxel.setDownsampleAllData(true);
+
+      // Sets up for range based filtering
+      pcl_voxel.setFilterFieldName("range");
+
+      // Filters range between minRange and 120 (max distance of lidar)
+      // For ouster workaround minRange is multiplied by 10^-41 for uint32 (mm) to float32 (m) compensation
+      pcl_voxel.setFilterLimits(minRange * pow(10, -41), minPointsRange * pow(10, -41));
+
+      // Leaf size (length, width and height of voxels) is set
+      pcl_voxel.setLeafSize (leafSize[0], leafSize[1], leafSize[2]);
+
+      // Minimum points filter is loaded
+      pcl_voxel.setMinimumPointsNumberPerVoxel(minPoints);
+
+      // Voxel is filtered
+      pcl_voxel.filter(short_filtered);
+    }
+
+    void combine()
+    {
+      // Combining clouds
+        pcl::concatenate(short_filtered, long_filtered, cloud_filtered);
+    }
+
+    void filterAll()
     {
         // Sets voxel grid to downsample all fields rather than just XYZ
         pcl_voxel.setDownsampleAllData(true);
@@ -139,6 +205,8 @@ class voxel_filter_node {
         // Voxel is filtered
         pcl_voxel.filter(cloud_filtered);
 
+
+        
     }
 
     void publish()
@@ -171,12 +239,14 @@ class voxel_filter_node {
       leafSize[1] = config.leaf_width;
       leafSize[2] = config.leaf_height;
       minPoints = config.min_points;
+      minPointsRange = config.min_points_range;
       minRange = config.min_range;
       
       // Display recieved variables
       ROS_INFO("Reconfigure Request:");
       ROS_INFO("Leaf Size, lwh:%f %f %f", leafSize[1], leafSize[1], leafSize[2]);
       ROS_INFO("Minimum Points: %d", minPoints);
+      ROS_INFO("Minimum Points Filter Max Range: %d", minPointsRange);
       ROS_INFO("Minimum Range: %f", minRange);
       
     }

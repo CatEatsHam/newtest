@@ -2,6 +2,10 @@
 
 PCL Voxel Filter takes in one ROS point cloud 2 message and downsamples the points into a grid of rectangular voxels. All the points inside of each voxel are reduced to a single point within, creating a downsampled uniform point cloud. In addition a minimum number of points threshhold can be used to filter points out based on density. A range filter has also been implemented to filter out point returns from vehicle framing, sensers, etc. The voxel size, minimum points and range parameters are dynamically reconfigurable using rqt_reconfigure.
 
+Methods:
+The range and minimum points filters use function provided by the voxel grid class by default
+
+To impliment a minimum points filter for only part of the point cloud, currently the close and far sections of the point cloud are filtered seperately and then combined back togetether. This allows the close section to use the minimum points filter while the far section does not.
 
 Workarounds:
 
