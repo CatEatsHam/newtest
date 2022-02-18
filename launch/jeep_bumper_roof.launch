@@ -43,7 +43,7 @@
         <param name="roof_lidar_translation_z"       type="double"   value="0.8" />
         <param name="roof_lidar_rotation_roll"       type="double"   value="0.0" />
         <param name="roof_lidar_rotation_pitch"      type="double"   value="0.0" />
-        <param name="roof_lidar_rotation_yaw"        type="double"   value="0.0" />
+        <param name="roof_lidar_rotation_yaw"        type="double"   value="1.5707" />
 
         <param name="camera_translation_x"     	type="double"   value="0.8001" />
         <param name="camera_translation_y"     	type="double"   value="0.0" />
