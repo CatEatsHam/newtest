@@ -1,0 +1,3 @@
+[submodule "LidarCalibration"]
+	path = LidarCalibration
+	url = https://github.tamu.edu/afcagc/LidarCalibration

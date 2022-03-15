@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  	<node pkg="pcl_fusion" type="pcl_fusion_node" name="pcl_fusion_node" output="screen"/>
+        <param name="/inputTopic1" value="/bumper_lidar/points" type="string" />
+
+        <param name="/inputTopic2" value="/roof_lidar/points" type="string" />
+
+        <param name="/outputTopic" value="/combined_lidar/points" type="string" />
+
+        <param name="/queue_size" value="1" type="int" />
+
+</launch>
