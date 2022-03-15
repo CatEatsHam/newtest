@@ -1,0 +1,10 @@
+# Python
+env
+__pycache__
+
+# Vim
+*.swp
+
+# Training data
+models
+logs
